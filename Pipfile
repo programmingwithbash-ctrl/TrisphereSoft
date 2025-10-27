@@ -1,0 +1,29 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+django = "*"
+djangorestframework = "*"
+djoser = "*"
+drf-nested-routers = "*"
+djangorestframework-simplejwt = "*"
+django-cors-headers = "*"
+pillow = "*"
+mysqlclient = "*"
+whitenoise = "*"
+pytest = "*"
+django-filter = "*"
+psycopg2-binary = "*"
+dj-database-url = "*"
+django-googledrive-storage = "*"
+channels = "*"
+channels-redis = "*"
+uvicorn = "*"
+websockets = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.10"
