@@ -43,7 +43,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:8080",
     "http://localhost:5173",
     "https://sulehammalibrarynwuk.com",
-    "https://trispheresoft.onrender.com"
+    "https://tri-attend-sync.onrender.com"
 ]
 
 
