@@ -151,7 +151,7 @@ DATABASES = {
 
 DATABASES = {
     "default": dj_database_url.parse(
-        "postgresql://lib_yza1_user:qjukMOCPKNOx8alQu3v3nnqD7FyTsJOQ@dpg-d3vi5lgdl3ps73fqu4gg-a.oregon-postgres.render.com/lib_yza1",
+        "postgresql://lib_qww5_user:xB1kP5vdFoBXzpD10aPYmNgUKdtocMJN@dpg-d40fe4fdiees739huatg-a.oregon-postgres.render.com/lib_qww5",
         conn_max_age=600
     )
 }
