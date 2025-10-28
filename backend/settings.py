@@ -35,7 +35,7 @@ SECRET_KEY = 'django-insecure-^4o)1q_*+1n3ni@e@9p@i3*1_s)q*m18a!4r#aqc4w%v@k(u=v
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['192.168.43.151', "192.168.1.130", '127.0.0.1', '192.168.43.242', '0.0.0.0', '192.168.43.93', '172.17.0.1', 'elibrary-xzou.onrender.com']
+ALLOWED_HOSTS = ['192.168.43.151', "192.168.1.130", '127.0.0.1', '192.168.43.242', '0.0.0.0', '192.168.43.93', '172.17.0.1', 'trispheresoft.onrender.com']
 
 CORS_ALLOWED_ORIGINS = [
     "http://192.168.43.151:8000",
