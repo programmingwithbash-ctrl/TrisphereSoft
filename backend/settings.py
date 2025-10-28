@@ -149,12 +149,12 @@ DATABASES = {
 # }
 
 
-# DATABASES = {
-#     "default": dj_database_url.parse(
-#         "postgresql://elibrary_5y76_user:WyDpg6D3wKaIIPDrznbpnvyI5rpiv06q@dpg-d33hu23ipnbc73e1beqg-a.oregon-postgres.render.com/elibrary_5y76",
-#         conn_max_age=600
-#     )
-# }
+DATABASES = {
+    "default": dj_database_url.parse(
+        "postgresql://lib_yza1_user:qjukMOCPKNOx8alQu3v3nnqD7FyTsJOQ@dpg-d3vi5lgdl3ps73fqu4gg-a.oregon-postgres.render.com/lib_yza1",
+        conn_max_age=600
+    )
+}
 
 
 

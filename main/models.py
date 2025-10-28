@@ -24,7 +24,6 @@ class UserManager(BaseUserManager):
         return self.create_user(email, username, password, **extra_fields)
 
 class User(AbstractUser):
-    id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
     email = models.EmailField(unique=True)
     username = models.CharField(max_length=255, unique=True, null=True)
     first_name = models.CharField(max_length=255, null=True)
