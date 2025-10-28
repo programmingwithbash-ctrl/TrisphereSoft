@@ -42,7 +42,8 @@ CORS_ALLOWED_ORIGINS = [
     "http://192.168.43.93:8000",
     "http://localhost:8080",
     "http://localhost:5173",
-    "https://sulehammalibrarynwuk.com"
+    "https://sulehammalibrarynwuk.com",
+    "https://trispheresoft.onrender.com"
 ]
 
 
