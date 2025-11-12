@@ -46,8 +46,9 @@ class User(AbstractUser):
         ('donator', 'Donator'),
         ('none', 'None')
     ], blank=True, null=True)  # Student Category (Undergraduate, Postgraduate, etc.)
+    role = models.CharField(max_length=50, blank=True, null=True, help_text="User role (admin, staff, student, etc.)")
     USERNAME_FIELD = 'username'
-    REQUIRED_FIELDS = ['email', 'first_name', 'last_name', 'phone', 'student_id', 'faculty', 'department', 'student_category', 'is_active', 'is_staff', 'is_superuser']  
+    REQUIRED_FIELDS = ['email', 'first_name', 'last_name', 'phone', 'student_id', 'faculty', 'department', 'student_category', 'staff_category', 'is_active', 'is_staff', 'is_superuser']  
 
     objects = UserManager()
 
@@ -128,8 +129,7 @@ class Circulation(models.Model):
 
     book = models.ForeignKey(Catalog, on_delete=models.CASCADE, related_name='circulations')
     student_name = models.CharField(max_length=255, blank=True, null=True, help_text="Student name")
-    student_card_id = models.CharField(max_length=255, blank=True, null=True, help_text="Student card ID")
-    borrow_date = models.DateField()
+    borrow_date = models.DateField(blank=True, null=True)
     return_date = models.DateField(blank=True, null=True)
     actual_return = models.DateField(blank=True, null=True)
     fine = models.DecimalField(max_digits=8, decimal_places=2, default=0.00)
@@ -140,15 +140,6 @@ class Circulation(models.Model):
             ("can_manage_circulation", "Can manage all circulation records"),
         ]
 
-    def save(self, *args, **kwargs):
-        # Only allow borrowing if available_count > 0 and can_be_borrowed is True
-        if self.status == 'borrowed':
-            if not self.book.can_be_borrowed:
-                raise ValueError('This item cannot be borrowed.')
-            available = self.book.available_count()
-            if available <= 0:
-                raise ValueError('No available copies to borrow.')
-        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.book.title} -> {self.user.username} ({self.status})"

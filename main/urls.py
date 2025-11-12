@@ -4,7 +4,7 @@ from .views import (
   AttendaceViewSet, CatalogViewSet, CirculationViewSet, 
   AcquisitionViewSet, DutyViewSet, MessageViewSet,
   PermissionView, GroupViewSet,
-  PublicUserListViewSet
+  PublicUserListViewSet, CustomUserViewSet
 )
 
 router = DefaultRouter()
@@ -17,5 +17,6 @@ router.register(r'messages', MessageViewSet)
 router.register(r'permissions', PermissionView, basename='permission-list')
 router.register(r'groups', GroupViewSet, basename='group')
 router.register(r'public-users', PublicUserListViewSet, basename='public-user-list')
+router.register(r'users', CustomUserViewSet, basename='custom-user')
 
 urlpatterns = router.urls

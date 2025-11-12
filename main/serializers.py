@@ -29,22 +29,39 @@ class UserCreateSerializer(BaseUserCreateSerializer):
         model = User
         fields = [
             "id", "first_name", "last_name", "username", "email", "password",
-            "phone", "student_id", "faculty", "department", "student_category",
+            "phone", "student_id", "faculty", "department", "student_category", 
+            "staff_category",
 
         ]
 
 
 class UserSerializer(BaseUserSerializer):
+    groups = GroupSerializer(many=True, read_only=True)
+    group_ids = serializers.PrimaryKeyRelatedField(      
+        many=True,
+        queryset=Group.objects.all(),
+        write_only=True,
+        source="groups"
+    )
+    permissions = PermissionSerializer(source="user_permissions", many=True, read_only=True)
+    permission_ids = serializers.PrimaryKeyRelatedField( 
+        many=True,
+        queryset=Permission.objects.all(),
+        write_only=True,
+        source="user_permissions"
+    )
     class Meta(BaseUserSerializer.Meta):
         model = User
         fields = [
             "id", "first_name", "last_name", "username", "email",
             "phone", "student_id", "faculty", "department", "student_category",
+            "staff_category", "role", 'permissions', 'permission_ids', 'groups', 'group_ids',
             "is_active", "is_staff", "is_superuser", "password",
         ]
 
 
 class UserNestedSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = User
         fields = ["id", "username", "first_name", "last_name", "email"]
@@ -68,20 +85,18 @@ class CatalogSerializer(serializers.ModelSerializer):
         ]
 
 class CirculationSerializer(serializers.ModelSerializer):
-    book = CatalogSerializer(read_only=True)
-    student_name = serializers.CharField(required=False, allow_blank=True)
-    student_card_id = serializers.CharField(required=False, allow_blank=True)
-
     def validate(self, data):
         book = data.get('book')
         status = data.get('status')
+        if not book or not status:
+            raise serializers.ValidationError({'detail': 'Book and status are required.'})
         if status == 'borrowed':
-            if not book.can_be_borrowed:
+            if not getattr(book, 'can_be_borrowed', True):
                 raise serializers.ValidationError({'book': 'This item cannot be borrowed.'})
             from main.models import Circulation
             borrowed_status = ['borrowed', 'overdue']
             borrowed_count = Circulation.objects.filter(book=book, status__in=borrowed_status).count()
-            available = book.quantity - borrowed_count
+            available = getattr(book, 'quantity', 1) - borrowed_count
             if available <= 0:
                 raise serializers.ValidationError({'book': 'No available copies to borrow.'})
         return data
@@ -89,7 +104,7 @@ class CirculationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Circulation
         fields = [
-            'id', 'book', 'student_name', 'student_card_id', 'borrow_date', 'return_date', 'actual_return', 'fine', 'status'
+            'id', 'book', 'student_name', 'borrow_date', 'return_date', 'actual_return', 'fine', 'status'
         ]
 
 class AcquisitionSerializer(serializers.ModelSerializer):

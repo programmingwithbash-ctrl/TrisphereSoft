@@ -104,3 +104,9 @@ class PublicUserListViewSet(viewsets.ViewSet):
                 "role": "admin" if user.is_superuser else ("staff" if user.is_staff else (user.staff_category or user.student_category or "user")),
             })
         return Response(data, status=status.HTTP_200_OK)
+    
+
+class CustomUserViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [IsAdminUser]
