@@ -48,7 +48,7 @@ class FullDjangoModelPermissions(permissions.DjangoModelPermissions):
         self.perms_map['GET'] = ['%(app_label)s.view_%(model_name)s']
 
 
-class AttendacePermission(permissions.BasePermission):
+class AttendancePermission(permissions.BasePermission):
     """
     - Authenticated users can create and view their own attendance records.
     - Admins or users with 'can_manage_attendance' can view/manage all.

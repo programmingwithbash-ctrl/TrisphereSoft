@@ -1,14 +1,14 @@
 from django.urls import path
 from rest_framework.routers import DefaultRouter
 from .views import (
-  AttendaceViewSet, CatalogViewSet, CirculationViewSet, 
+  AttendanceViewSet, CatalogViewSet, CirculationViewSet, 
   AcquisitionViewSet, DutyViewSet, MessageViewSet,
   PermissionView, GroupViewSet,
   PublicUserListViewSet, CustomUserViewSet
 )
 
 router = DefaultRouter()
-router.register(r'attendace', AttendaceViewSet, basename='attendace')
+router.register(r'attendance', AttendanceViewSet, basename='attendance')
 router.register(r'catalog', CatalogViewSet, basename='catalog')
 router.register(r'circulation', CirculationViewSet, basename='circulation')
 router.register(r'acquisition', AcquisitionViewSet, basename='acquisition')

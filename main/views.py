@@ -2,15 +2,15 @@ from django.contrib.auth.models import Permission, Group
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAdminUser
-from .models import (Attendace, Catalog, Circulation, 
+from .models import (Attendance, Catalog, Circulation, 
                      Acquisition, Duty, Message
                      )
 from .serializers import (
-    AttendaceSerializer, CatalogSerializer, CirculationSerializer, 
+    AttendanceSerializer, CatalogSerializer, CirculationSerializer, 
     AcquisitionSerializer, DutySerializer, MessageSerializer,
     PermissionSerializer, GroupSerializer
 )
-from .permissions import AttendacePermission, MessagePermission, FullDjangoModelPermissions
+from .permissions import AttendancePermission, MessagePermission, FullDjangoModelPermissions
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
@@ -18,17 +18,76 @@ from .models import User
 from rest_framework import status
 from .serializers import UserSerializer
 from django.db import models
+from django.utils.timezone import now, timedelta
 
 
-class AttendaceViewSet(viewsets.ModelViewSet):
-    serializer_class = AttendaceSerializer
-    permission_classes = [AttendacePermission]
+class AttendanceViewSet(viewsets.ModelViewSet):
+    serializer_class = AttendanceSerializer
+    queryset = Attendance.objects.all()
+    permission_classes = [AttendancePermission]
 
     def get_queryset(self):
         user = self.request.user
+
         if user.is_staff or user.has_perm('main.can_manage_attendance'):
-            return Attendace.objects.all()
-        return Attendace.objects.filter(user=user)
+            return Attendance.objects.all()
+
+        return Attendance.objects.filter(user=user)
+    
+
+    def create(self, request, *args, **kwargs):
+        barcode = request.data.get("barcode")
+
+        if not barcode:
+            return Response({"detail": "Barcode is required"}, status=400)
+
+        # Find user by barcode
+        try:
+            user = User.objects.get(barcode=barcode)
+        except User.DoesNotExist:
+            return Response({"detail": "No user found with this barcode"}, status=404)
+
+        # Prevent duplicates
+        time_limit = now() - timedelta(minutes=1)
+        existing = Attendance.objects.filter(
+            user=user,
+            created_at__gte=time_limit
+        ).first()
+
+        if existing:
+            serializer = self.get_serializer(existing)
+            return Response({
+                "detail": "Attendance already recorded recently",
+                "attendance": serializer.data,
+                "user_data": self.get_user_data(user),
+            }, status=200)
+
+        serializer = self.get_serializer(
+            data=request.data,
+            context={"user": user}
+        )
+        serializer.is_valid(raise_exception=True)
+        attendance = serializer.save()
+
+        return Response({
+            **serializer.data,
+            "user_data": self.get_user_data(user)
+        }, status=status.HTTP_201_CREATED)
+
+
+    def get_user_data(self, user):
+        return {
+            "id": user.id,
+            "username": user.username,
+            "email": user.email,
+            "first_name": user.first_name,
+            "last_name": user.last_name,
+            "faculty": user.faculty,
+            "department": user.department,
+            "category": user.user_category or user.staff_category
+        }
+
+
 
 class CatalogViewSet(viewsets.ModelViewSet):
     queryset = Catalog.objects.all()
@@ -101,7 +160,7 @@ class PublicUserListViewSet(viewsets.ViewSet):
                 "username": user.username,
                 "first_name": user.first_name,
                 "last_name": user.last_name,
-                "role": "admin" if user.is_superuser else ("staff" if user.is_staff else (user.staff_category or user.student_category or "user")),
+                "role": "admin" if user.is_superuser else ("staff" if user.is_staff else (user.staff_category or user.user_category or "user")),
             })
         return Response(data, status=status.HTTP_200_OK)
     

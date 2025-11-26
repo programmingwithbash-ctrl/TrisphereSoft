@@ -32,12 +32,12 @@ class User(AbstractUser):
     student_id = models.CharField(max_length=255, blank=True, null=True)  # Student ID
     faculty = models.CharField(max_length=255, blank=True, null=True)  # Faculty
     department = models.CharField(max_length=255, blank=True, null=True)  # Department
-    student_category = models.CharField(max_length=50, choices=[
+    barcode = models.CharField(max_length=255, unique=True, null=True, blank=True)
+    user_category = models.CharField(max_length=50, choices=[
         ('undergraduate', 'Undergraduate'),
         ('postgraduate', 'Postgraduate'),
-        ('masters', 'Masters'),
-        ('phd', 'PhD'),
-        ('none', 'None'),
+        ('alumnus', 'Alumnus'),
+        ('others', 'Others'),
     ], blank=True, null=True)  # Student Category (Undergraduate, Postgraduate, etc.)
     staff_category = models.CharField(max_length=50, choices=[
         ('librarian', 'Librarian'),
@@ -48,46 +48,52 @@ class User(AbstractUser):
     ], blank=True, null=True)  # Student Category (Undergraduate, Postgraduate, etc.)
     role = models.CharField(max_length=50, blank=True, null=True, help_text="User role (admin, staff, student, etc.)")
     USERNAME_FIELD = 'username'
-    REQUIRED_FIELDS = ['email', 'first_name', 'last_name', 'phone', 'student_id', 'faculty', 'department', 'student_category', 'staff_category', 'is_active', 'is_staff', 'is_superuser']  
+    REQUIRED_FIELDS = ['email', 'first_name', 'last_name', 'phone', 'student_id', 'faculty', 'department', 'user_category', 'staff_category', 'is_active', 'is_staff', 'is_superuser', 'barcode']  
 
     objects = UserManager()
 
     def __str__(self):
         return self.username
+ 
 
-class Attendace(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
-    METHOD_CHOICES = [
-        ('thumbprint', 'Thumbprint'),
-        ('manual', 'Manual'),
-        ('id_card', 'ID Card'),
+class Attendance(models.Model):
+    SIGN_CHOICES = [
+        ("signin", "Sign In"),
+        ("signout", "Sign Out"),
+        ("other", "Other"),  # optional
     ]
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='attendances', null=True, blank=True)
-    fingerprint_data = models.TextField()  # Store as base64 or binary
-    reg_no = models.CharField(max_length=255, blank=True, null=True)  # Registration Number
-    name = models.CharField(max_length=255, blank=True, null=True)
-    category = models.CharField(max_length=50, blank=True, null=True)
-    faculty = models.CharField(max_length=255, blank=True, null=True)
-    department = models.CharField(max_length=255, blank=True, null=True)
-    items = models.TextField(blank=True, null=True)  # Items brought by the user
-    purpose = models.CharField(max_length=255, blank=True, null=True)  # Purpose of visit
-    method = models.CharField(max_length=20, choices=METHOD_CHOICES, default='manual')
-    check_out = models.DateTimeField(auto_now_add=True)
-    created_at = models.DateTimeField(auto_now_add=True) 
-    updated_at = models.DateTimeField(auto_now_add=True)
+
+    id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    purpose = models.CharField(max_length=255, blank=True, null=True)
+    items = models.CharField(max_length=255, blank=True, null=True)
+    method = models.CharField(max_length=50, default="barcode")
+
+    # ✅ NEW FIELD (Sign in / Sign out)
+    sign_type = models.CharField(
+        max_length=20,
+        choices=SIGN_CHOICES,
+        default="signout"   # your default
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         permissions = [
             ("can_manage_attendance", "Can manage all attendance records"),
         ]
+        ordering = ['-created_at']
+        verbose_name = "Attendance"
+        verbose_name_plural = "Attendance"
 
     def __str__(self):
-        user_part = self.user.username if self.user else (self.name or self.reg_no or 'anonymous')
-        return f"{user_part} - {self.fp_id or self.id}"
+        return f"{self.user.username} ({self.sign_type} at {self.created_at})"
 
 class Catalog(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
     title = models.CharField(max_length=255, blank=True, null=True)
+    author = models.CharField(max_length=255, blank=True, null=True)
+    barcode = models.CharField(max_length=255, unique=True, null=True, blank=True)
     # Standardized catalogue record for MARC21, Dublin Core, AI tagging, etc.
     marc_tag = models.TextField(blank=True, null=True)
     dublin_core = models.TextField(blank=True, null=True)
@@ -128,7 +134,7 @@ class Circulation(models.Model):
     ]
 
     book = models.ForeignKey(Catalog, on_delete=models.CASCADE, related_name='circulations')
-    student_name = models.CharField(max_length=255, blank=True, null=True, help_text="Student name")
+    borrower = models.ForeignKey(User, on_delete=models.CASCADE, related_name='borrowers', null=True)
     borrow_date = models.DateField(blank=True, null=True)
     return_date = models.DateField(blank=True, null=True)
     actual_return = models.DateField(blank=True, null=True)
@@ -142,7 +148,7 @@ class Circulation(models.Model):
 
 
     def __str__(self):
-        return f"{self.book.title} -> {self.user.username} ({self.status})"
+        return f"{self.book.title} -> {self.borrower.email} ({self.status})"
 
 class Acquisition(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
