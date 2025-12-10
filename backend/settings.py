@@ -143,7 +143,7 @@ DATABASES = {
 
 DATABASES = {
     "default": dj_database_url.parse(
-        "postgresql://lib_qww5_user:xB1kP5vdFoBXzpD10aPYmNgUKdtocMJN@dpg-d40fe4fdiees739huatg-a.oregon-postgres.render.com/lib_qww5",
+        "postgresql://db_trisphere_user:IlTLul8U38Md6fdaeBjXmwLRmWjfQVMX@dpg-d4sk2oqli9vc73ehro20-a.oregon-postgres.render.com/db_trisphere",
         conn_max_age=600
     )
 }
