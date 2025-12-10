@@ -116,16 +116,16 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'e_library',
-        'HOST': 'localhost',
-        'USER': 'root',
-        'PASSWORD': '19051905'
-    }
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': 'e_library',
+#         'HOST': 'localhost',
+#         'USER': 'root',
+#         'PASSWORD': '19051905'
+#     }
     
-}
+# }
 
 # DATABASES = {
 #     'default': {
@@ -143,10 +143,12 @@ DATABASES = {
 
 DATABASES = {
     "default": dj_database_url.parse(
-        "postgresql://db_trisphere_user:IlTLul8U38Md6fdaeBjXmwLRmWjfQVMX@dpg-d4sk2oqli9vc73ehro20-a.oregon-postgres.render.com/db_trisphere",
-        conn_max_age=600
+        "postgresql://db_trisphere_user:IlTLul8U38Md6fdaeBjXmwLRmWjfQVMX@dpg-d4sk2oqli9vc73ehro20-a.oregon-postgres.render.com/db_trisphere?sslmode=require",
+        conn_max_age=600,
+        ssl_require=True
     )
 }
+
 
 
 
