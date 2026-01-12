@@ -143,7 +143,7 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 
 DATABASES = {
     "default": dj_database_url.parse(
-        "postgresql://db_trisphere_user:IlTLul8U38Md6fdaeBjXmwLRmWjfQVMX@dpg-d4sk2oqli9vc73ehro20-a.oregon-postgres.render.com/db_trisphere?sslmode=require",
+        "postgresql://db_trisphere_x5gc_user:i7ydPLDIfWKzMthQhRfDXexDeAcVffNa@dpg-d5i1iat6ubrc738b4p70-a.oregon-postgres.render.com/db_trisphere_x5gc",
         conn_max_age=600,
         ssl_require=True
     )
